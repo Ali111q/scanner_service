@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk.Worker">
+
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <UserSecretsId>dotnet-ScannerService-13f3e1f3-394c-4c14-988c-147a87816cfe</UserSecretsId>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Core.System.Configuration.Install" Version="1.1.0" />
+        <PackageReference Include="Microsoft.AspNetCore.App" Version="2.2.8" />
+        <PackageReference Include="Microsoft.AspNetCore.Mvc" Version="2.2.0" />
+        <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.1" />
+        <PackageReference Include="Microsoft.Extensions.Hosting.WindowsServices" Version="8.0.1" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Reference Include="Interop.WIA">
+        <HintPath>..\..\..\Desktop\Interop.WIA.dll</HintPath>
+      </Reference>
+    </ItemGroup>
+</Project>
