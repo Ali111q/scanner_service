@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scanner API Interface</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        select, button {
+            padding: 10px;
+            margin-top: 10px;
+            width: 100%;
+            font-size: 16px;
+        }
+        #scannedImage {
+            margin-top: 20px;
+            max-width: 100%;
+            border: 1px solid #ddd;
+        }
+        .message {
+            margin-top: 10px;
+            color: red;
+        }
+    </style>
+</head>
+<body>
+<h1>Scanner API Interface</h1>
+<button onclick="fetchScanners()">Get Connected Scanners</button>
+
+<label for="scanners">Select Scanner:</label>
+<select id="scanners" disabled>
+    <option value="">-- No scanners available --</option>
+</select>
+
+<button onclick="startScan()" id="scanButton" disabled>Start Scan</button>
+
+<div id="scannedImageContainer">
+    <h3>Scanned Image:</h3>
+    <img id="scannedImage" alt="Scanned image will appear here" />
+</div>
+
+<div class="message" id="message"></div>
+
+<script>
+    const apiUrl = 'http://localhost:5000/api/scanner'; // Adjust port if different
+
+    async function fetchScanners() {
+        try {
+            const response = await fetch(`${apiUrl}/connected`);
+            const data = await response.json();
+
+            const scannerDropdown = document.getElementById('scanners');
+            const scanButton = document.getElementById('scanButton');
+            scannerDropdown.innerHTML = ''; // Clear existing options
+
+            if (response.ok && data.length > 0) {
+                data.forEach(scanner => {
+                    const option = document.createElement('option');
+                    option.value = scanner;
+                    option.text = scanner;
+                    scannerDropdown.appendChild(option);
+                });
+                scannerDropdown.disabled = false;
+                scanButton.disabled = false;
+                displayMessage('');
+            } else {
+                displayMessage(data.message || "No scanners found.");
+                scannerDropdown.innerHTML = '<option value="">-- No scanners available --</option>';
+                scannerDropdown.disabled = true;
+                scanButton.disabled = true;
+            }
+        } catch (error) {
+            displayMessage("Error fetching scanners: " + error.message);
+        }
+    }
+
+    async function startScan() {
+        const scannerDropdown = document.getElementById('scanners');
+        const selectedScanner = scannerDropdown.value;
+
+        if (!selectedScanner) {
+            displayMessage("Please select a scanner.");
+            return;
+        }
+
+        try {
+            displayMessage("Scanning...");
+
+            const response = await fetch(`${apiUrl}/scan?scannerName=${encodeURIComponent(selectedScanner)}`);
+            const data = await response.json();
+
+            if (response.ok && data.scannedImage) {
+                displayScannedImage(data.scannedImage);
+                displayMessage("Scan completed successfully.");
+            } else {
+                displayMessage(data.message || "Scan failed.");
+            }
+        } catch (error) {
+            displayMessage("Error during scan: " + error.message);
+        }
+    }
+
+    function displayScannedImage(base64Image) {
+        const imageElement = document.getElementById('scannedImage');
+        imageElement.src = `data:image/jpeg;base64,${base64Image}`;
+    }
+
+    function displayMessage(message) {
+        document.getElementById('message').textContent = message;
+    }
+</script>
+</body>
+</html>
